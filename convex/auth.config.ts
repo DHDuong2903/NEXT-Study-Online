@@ -7,3 +7,6 @@ export default {
     },
   ],
 };
+
+// File này nói với Convex:
+// “Hãy chấp nhận JWT được phát hành từ Clerk project ở domain cosmic-puma-54.clerk.accounts.dev, và chỉ những JWT nào có aud = convex mới hợp lệ.”
