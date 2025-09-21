@@ -8,6 +8,7 @@ const http = httpRouter();
 
 // WEBHOOK: La 1 thong bao tu dong tu Client den Server khi co su kien nao do xay ra
 
+// Dinh nghia route webhook
 http.route({
   path: "/clerk-webhook",
   method: "POST",
@@ -18,7 +19,7 @@ http.route({
     }
 
     // svix la 1 thu vien de quan ly va bao mat WEBHOOK
-
+    // Lay header de xac thuc webhook
     const svix_id = req.headers.get("svix-id");
     const svix_timestamp = req.headers.get("svix-timestamp");
     const svix_signature = req.headers.get("svix-signature");
@@ -26,7 +27,7 @@ http.route({
     if (!svix_id || !svix_timestamp || !svix_signature) {
       throw new Response("Missing svix headers", { status: 400 });
     }
-
+    // Verify payload
     const payload = await req.json();
     const body = JSON.stringify(payload);
 
@@ -44,6 +45,7 @@ http.route({
       return new Response("Error occurred", { status: 400 });
     }
 
+    // Xu ly su kien user.created
     const eventType = evt.type;
 
     if (eventType === "user.created") {
@@ -64,7 +66,7 @@ http.route({
         return new Response("Error creating user", { status: 500 });
       }
     }
-
+    // Ket thuc xu ly su kien
     return new Response("Webhook processed successfully", { status: 200 });
   }),
 });
