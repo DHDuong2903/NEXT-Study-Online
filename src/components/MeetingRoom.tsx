@@ -14,6 +14,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resiz
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import EndCallButton from "./EndCallButton";
 
 const MeetingRoom = () => {
   const router = useRouter();
@@ -70,7 +71,7 @@ const MeetingRoom = () => {
                       <UserIcon className="size-4" />
                     </Button>
 
-                    <Button>End call btn</Button>
+                    <EndCallButton />
                   </div>
                 </div>
               </div>

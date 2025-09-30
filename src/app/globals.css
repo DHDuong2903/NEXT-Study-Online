@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- Stream SDK overrides for light mode --- */
+
+/* Device settings */
+:root:not(.dark) .str-video__device-settings {
+  color: white !important;
+  background-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Call controls (nút mic, cam, end call, vv) */
+:root:not(.dark) .str-video__call-controls {
+  color: white !important;
+}
+
+/* Participants list (tên + trạng thái người tham gia) */
+:root .str-video__participant-list {
+  padding: 16px;
+}
+
+:root:not(.dark) .str-video__participant-list {
+  color: white !important;
+}
+
+/* Speaker layout (hiển thị người nói chính) */
+:root:not(.dark) .str-video__speaker-layout {
+  color: white !important;
+}
+
+/* Grid layout (nhiều người chia ô) */
+:root:not(.dark) .str-video__paginated-grid-layout {
+  color: white !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
