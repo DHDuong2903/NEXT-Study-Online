@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import EndCallButton from "./EndCallButton";
+import CodeEditor from "./CodeEditor";
 
 const MeetingRoom = () => {
   const router = useRouter();
@@ -82,7 +83,7 @@ const MeetingRoom = () => {
         <ResizableHandle withHandle />
 
         <ResizablePanel defaultSize={65} minSize={25}>
-          <h1>Code editor</h1>
+          <CodeEditor />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
