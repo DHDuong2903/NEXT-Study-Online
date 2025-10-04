@@ -53,8 +53,8 @@ export default function RootLayout({
             toastOptions={{
               classNames: {
                 toast: "rounded-md shadow-md p-4",
-                success: "!bg-green-500 text-green-700 dark:bg-green-900 dark:text-green-200",
-                error: "!bg-red-500 text-red-700 dark:bg-red-900 dark:text-red-200",
+                success: "!bg-green-500 !text-white dark:bg-green-900",
+                error: "!bg-red-500 !text-white dark:bg-red-900",
               },
             }}
           />
