@@ -14,6 +14,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, CheckCircle, Clock, XCircle } from "lucide-react";
 import { format } from "date-fns";
+import CommentDialog from "@/components/CommentDialog";
 
 type Room = Doc<"rooms">;
 
@@ -109,6 +110,7 @@ const DashboardPage = () => {
                               </Button>
                             </div>
                           )}
+                          <CommentDialog roomId={room._id} />
                         </CardFooter>
                       </Card>
                     );
