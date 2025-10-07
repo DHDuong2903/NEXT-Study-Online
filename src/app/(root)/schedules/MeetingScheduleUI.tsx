@@ -21,6 +21,7 @@ import UserInfo from "@/components/UserInfo";
 import { Loader2, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { TIME_SLOTS } from "@/constants";
+import MeetingCard from "@/components/MeetingCard";
 
 const MeetingScheduleUI = () => {
   const client = useStreamVideoClient();
@@ -267,6 +268,23 @@ const MeetingScheduleUI = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Meeting Card */}
+      {!rooms ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : rooms.length > 0 ? (
+        <div className="space-y-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {rooms.map((room) => (
+              <MeetingCard key={room._id} room={room} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-muted-foreground text-center py-12">No meetings scheduled</div>
+      )}
     </div>
   );
 };
