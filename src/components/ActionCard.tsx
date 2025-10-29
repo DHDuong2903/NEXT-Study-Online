@@ -22,6 +22,11 @@ const colorMap: Record<string, { text: string; border: string; hoverText: string
     border: "hover:border-orange-500",
     hoverText: "group-hover:text-orange-500",
   },
+  red: {
+    text: "text-red-500",
+    border: "hover:border-red-500",
+    hoverText: "group-hover:text-red-500",
+  },
 };
 
 const ActionCard = ({ action, onClick }: { action: QuickActionType; onClick: () => void }) => {

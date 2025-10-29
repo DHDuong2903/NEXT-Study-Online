@@ -1,4 +1,4 @@
-import { Clock, Code2, Calendar, Users } from "lucide-react";
+import { Clock, Code2, Calendar, Users, Video } from "lucide-react";
 
 export const ROOM_CATEGORY = [
   { id: "upcoming", title: "Upcoming Classes", variant: "outline" },
@@ -43,7 +43,7 @@ export const TIME_SLOTS = [
 
 export const QUICK_ACTIONS = [
   {
-    icon: Code2,
+    icon: Video,
     title: "New Call",
     description: "Start an instant call",
     color: "green",
@@ -58,13 +58,19 @@ export const QUICK_ACTIONS = [
     icon: Calendar,
     title: "Schedules",
     description: "Plan upcoming classes",
-    color: "blue",
+    color: "red",
   },
   {
     icon: Clock,
     title: "Recordings",
     description: "Access past classes",
     color: "orange",
+  },
+  {
+    icon: Code2,
+    title: "Coding Questions",
+    description: "Practice coding problems",
+    color: "blue",
   },
 ];
 
@@ -74,6 +80,7 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
     title: "Two Sum",
     description:
       "Given an array of integers `nums` and an integer `target`, return indices of the two numbers in the array such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+    level: "Easy",
     examples: [
       {
         input: "nums = [2,7,11,15], target = 9",
@@ -93,12 +100,6 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
       python: `def two_sum(nums, target):
     # Write your solution here
     pass`,
-      java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        // Write your solution here
-        
-    }
-}`,
     },
     constraints: [
       "2 ≤ nums.length ≤ 104",
@@ -107,11 +108,13 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
       "Only one valid answer exists.",
     ],
   },
+
   {
     id: "reverse-string",
     title: "Reverse String",
     description:
       "Write a function that reverses a string. The input string is given as an array of characters `s`.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.",
+    level: "Easy",
     examples: [
       {
         input: 's = ["h","e","l","l","o"]',
@@ -130,19 +133,15 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
       python: `def reverse_string(s):
     # Write your solution here
     pass`,
-      java: `class Solution {
-    public void reverseString(char[] s) {
-        // Write your solution here
-        
-    }
-}`,
     },
   },
+
   {
     id: "palindrome-number",
     title: "Palindrome Number",
     description:
       "Given an integer `x`, return `true` if `x` is a palindrome, and `false` otherwise.\n\nAn integer is a palindrome when it reads the same forward and backward.",
+    level: "Easy",
     examples: [
       {
         input: "x = 121",
@@ -164,12 +163,6 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
       python: `def is_palindrome(x):
     # Write your solution here
     pass`,
-      java: `class Solution {
-    public boolean isPalindrome(int x) {
-        // Write your solution here
-        
-    }
-}`,
     },
   },
 ];
@@ -177,13 +170,13 @@ export const CODING_QUESTIONS: CodeQuestion[] = [
 export const LANGUAGES = [
   { id: "javascript", name: "JavaScript", icon: "/javascript.png" },
   { id: "python", name: "Python", icon: "/python.png" },
-  { id: "java", name: "Java", icon: "/java.png" },
 ] as const;
 
 export interface CodeQuestion {
   id: string;
   title: string;
   description: string;
+  level: "Easy" | "Medium" | "Hard";
   examples: Array<{
     input: string;
     output: string;
@@ -192,7 +185,6 @@ export interface CodeQuestion {
   starterCode: {
     javascript: string;
     python: string;
-    java: string;
   };
   constraints?: string[];
 }

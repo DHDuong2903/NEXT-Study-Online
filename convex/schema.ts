@@ -19,6 +19,7 @@ export default defineSchema({
     streamCallId: v.string(),
     studentId: v.string(),
     teacherIds: v.array(v.string()),
+    participants: v.optional(v.array(v.string())), // Danh sach nguoi tham gia
   })
     .index("by_student_id", ["studentId"])
     .index("by_stream_call_id", ["streamCallId"]),
@@ -26,7 +27,7 @@ export default defineSchema({
   comments: defineTable({
     content: v.string(),
     rating: v.number(),
-    teacherId: v.string(),
+    authorId: v.string(),
     roomId: v.id("rooms"), // Khoa ngoai: tham chieu den bang rooms
   }).index("by_room_id", ["roomId"]),
 });
