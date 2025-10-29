@@ -15,8 +15,25 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
-const CommentDialog = ({ roomId }: { roomId: Id<"rooms"> }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CommentDialog = ({
+  roomId,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  hideTrigger,
+}: {
+  roomId: Id<"rooms">;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
+}) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = typeof controlledIsOpen === "boolean" && typeof onOpenChange === "function";
+  const isOpen = isControlled ? controlledIsOpen! : internalOpen;
+  const setIsOpen = (v: boolean) => {
+    if (isControlled) onOpenChange!(v);
+    else setInternalOpen(v);
+  };
+
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState("3");
 
@@ -59,12 +76,14 @@ const CommentDialog = ({ roomId }: { roomId: Id<"rooms"> }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" className="w-full">
-          <MessageSquare className="w-4 h-4 mr-2" />
-          Add Comment
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="secondary" className="w-full">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Add Comment
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -85,17 +104,17 @@ const CommentDialog = ({ roomId }: { roomId: Id<"rooms"> }) => {
               <ScrollArea className="h-[240px]">
                 <div className="space-y-4">
                   {existingComments.map((comment, index) => {
-                    const teacher = getTeacherInfo(users, comment.teacherId);
+                    const author = getTeacherInfo(users, comment.authorId);
                     return (
                       <div key={index} className="rounded-lg border p-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src={teacher.image} />
-                              <AvatarFallback>{teacher.initials}</AvatarFallback>
+                              <AvatarImage src={author.image} />
+                              <AvatarFallback>{author.initials}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="text-sm font-medium">{teacher.name}</p>
+                              <p className="text-sm font-medium">{author.name}</p>
                               <p className="text-xs text-muted-foreground">
                                 {format(comment._creationTime, "MMM d, yyyy 'at' h:mm a")}
                               </p>
@@ -136,7 +155,7 @@ const CommentDialog = ({ roomId }: { roomId: Id<"rooms"> }) => {
               <Textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Share your detailed comment about the student..."
+                placeholder="Write comment here..."
                 className="h-32"
               />
             </div>

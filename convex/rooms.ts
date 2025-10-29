@@ -68,3 +68,41 @@ export const getRoomByStreamCallId = query({
       .first();
   },
 });
+
+export const deleteRoom = mutation({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const room = await ctx.db.get(args.roomId);
+    if (!room) throw new Error("Room not found");
+
+    // Chỉ teacher tham gia room mới được xóa
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user || user.role !== "teacher" || !room.teacherIds.includes(identity.subject)) {
+      throw new Error("Forbidden");
+    }
+
+    // Lấy tất cả rooms cùng streamCallId và xóa hết (để student cũng mất)
+    const siblings = await ctx.db
+      .query("rooms")
+      .withIndex("by_stream_call_id", (q) => q.eq("streamCallId", room.streamCallId))
+      .collect();
+
+    // Xóa comment của từng room rồi xóa room
+    for (const r of siblings) {
+      const comments = await ctx.db
+        .query("comments")
+        .withIndex("by_room_id", (q) => q.eq("roomId", r._id))
+        .collect();
+      for (const c of comments) await ctx.db.delete(c._id);
+      await ctx.db.delete(r._id);
+    }
+    return true;
+  },
+});

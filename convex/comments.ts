@@ -17,7 +17,7 @@ export const addComment = mutation({
       roomId: args.roomId,
       content: args.content,
       rating: args.rating,
-      teacherId: identity.subject,
+      authorId: identity.subject,
     });
   },
 });

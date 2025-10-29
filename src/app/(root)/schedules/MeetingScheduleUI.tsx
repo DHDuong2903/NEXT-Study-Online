@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/nextjs";
+import { useEffect, useMemo, useState } from "react";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
 import {
@@ -16,12 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import UserInfo from "@/components/UserInfo";
 import { Loader2, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { TIME_SLOTS } from "@/constants";
 import MeetingCard from "@/components/MeetingCard";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const MeetingScheduleUI = () => {
   const client = useStreamVideoClient();
@@ -35,19 +36,26 @@ const MeetingScheduleUI = () => {
   const students = users?.filter((user) => user.role === "student");
   const teachers = users?.filter((user) => user.role === "teacher");
 
-  const [formData, setFormData] = useState({
+  const initialFormData = () => ({
     title: "",
     description: "",
     teacher: "",
     date: new Date(),
     time: "09:00",
-    studentId: "",
+    studentIds: [] as string[],
     teacherIds: user?.id ? [user.id] : [],
   });
 
+  const [formData, setFormData] = useState(initialFormData());
+
+  // Reset dữ liệu mỗi khi mở form
+  useEffect(() => {
+    if (open) setFormData(initialFormData());
+  }, [open, user?.id]);
+
   const scheduleMeeting = async () => {
     if (!client || !user) return;
-    if (!formData.studentId || formData.teacherIds.length === 0) {
+    if (formData.studentIds.length === 0 || formData.teacherIds.length === 0) {
       toast.error("Please select both student and at least one teacher");
       return;
     }
@@ -55,14 +63,16 @@ const MeetingScheduleUI = () => {
     setIsCreating(true);
 
     try {
-      const { title, description, date, time, studentId, teacherIds } = formData;
+      const { title, description, date, time, teacherIds } = formData;
+      // Loại bỏ trùng ID đề phòng chọn nhiều lần
+      const studentIds = Array.from(new Set(formData.studentIds));
       const [hours, minutes] = time.split(":");
       const meetingDate = new Date(date);
       meetingDate.setHours(parseInt(hours), parseInt(minutes), 0);
 
-      const id = crypto.randomUUID();
-      const call = client.call("default", id);
-
+      // Tạo 1 Stream Call duy nhất cho tất cả students
+      const streamCallId = crypto.randomUUID();
+      const call = client.call("default", streamCallId);
       await call.getOrCreate({
         data: {
           starts_at: meetingDate.toISOString(),
@@ -72,19 +82,24 @@ const MeetingScheduleUI = () => {
           },
         },
       });
-
-      await createRoom({
-        title,
-        description,
-        startTime: meetingDate.getTime(),
-        status: "upcoming",
-        streamCallId: id,
-        studentId,
-        teacherIds,
-      });
+      // Lưu 1 room/student nhưng cùng streamCallId
+      await Promise.all(
+        studentIds.map(async (studentId) =>
+          createRoom({
+            title,
+            description,
+            startTime: meetingDate.getTime(),
+            status: "upcoming",
+            streamCallId,
+            studentId,
+            teacherIds,
+          })
+        )
+      );
 
       setOpen(false);
-      toast.success("Meeting scheduled successfully");
+      toast.success(`Scheduled ${studentIds.length} meeting(s) successfully`);
+      setFormData(initialFormData());
     } catch (error) {
       console.log(error);
       toast.error("Failed to schedule meeting");
@@ -110,6 +125,14 @@ const MeetingScheduleUI = () => {
     }));
   };
 
+  const uniqueRooms = useMemo(() => {
+    const map = new Map<string, (typeof rooms)[number]>();
+    rooms.forEach((r) => {
+      if (!map.has(r.streamCallId)) map.set(r.streamCallId, r);
+    });
+    return Array.from(map.values());
+  }, [rooms]);
+
   const selectedTeachers = teachers?.filter((teacher) => formData.teacherIds.includes(teacher.clerkId));
   const availableTeachers = teachers?.filter((teacher) => !formData.teacherIds.includes(teacher.clerkId));
 
@@ -125,7 +148,7 @@ const MeetingScheduleUI = () => {
         {/* Dialog */}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="lg">Schedule Meeting</Button>
+            <Button>Schedule Meeting</Button>
           </DialogTrigger>
 
           <DialogContent className="sm:max-w-[500px] h-[calc(100vh-200px)] overflow-auto">
@@ -158,24 +181,49 @@ const MeetingScheduleUI = () => {
 
               {/* Student */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Student</label>
-                <Select
-                  value={formData.studentId}
-                  onValueChange={(studentId) => {
-                    setFormData({ ...formData, studentId });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select student" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students?.map((student) => (
-                      <SelectItem key={student.clerkId} value={student.clerkId}>
-                        <UserInfo user={student} />
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-medium">Students</label>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    className="rounded-full"
+                    checked={students.length > 0 && formData.studentIds.length === students.length}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        studentIds: checked ? Array.from(new Set(students.map((s) => s.clerkId))) : [],
+                      }))
+                    }
+                  />
+                  <span className="text-sm">Select all</span>
+                </div>
+                <ScrollArea className="h-[220px] rounded-md border p-2">
+                  <div className="space-y-2">
+                    {students?.map((student) => {
+                      const checked = formData.studentIds.includes(student.clerkId);
+                      return (
+                        <label
+                          key={student.clerkId}
+                          className="flex items-center justify-between rounded-md p-2 hover:bg-accent"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Checkbox
+                              className="rounded-full"
+                              checked={checked}
+                              onCheckedChange={(isChecked) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  studentIds: isChecked
+                                    ? Array.from(new Set([...prev.studentIds, student.clerkId]))
+                                    : prev.studentIds.filter((id) => id !== student.clerkId),
+                                }))
+                              }
+                            />
+                            <UserInfo user={student} />
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
               </div>
 
               {/* Teachers */}
@@ -274,11 +322,13 @@ const MeetingScheduleUI = () => {
         <div className="flex justify-center py-12">
           <Loader2 className="size-8 animate-spin text-muted-foreground" />
         </div>
-      ) : rooms.length > 0 ? (
+      ) : uniqueRooms.length > 0 ? (
         <div className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {rooms.map((room) => (
-              <MeetingCard key={room._id} room={room} />
+            {uniqueRooms.map((room) => (
+              <div key={room._id} className="space-y-2">
+                <MeetingCard room={room} />
+              </div>
             ))}
           </div>
         </div>
