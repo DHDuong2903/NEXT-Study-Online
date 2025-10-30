@@ -4,10 +4,11 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     name: v.string(),
+    clerkId: v.string(),
     email: v.string(),
     image: v.optional(v.string()), // Co the la string hoac ull
     role: v.union(v.literal("student"), v.literal("teacher")), // hoc sinh hoac giao vien
-    clerkId: v.string(),
+    solvedQuestions: v.optional(v.array(v.id("questions"))), // Cac cau hoi da giai
   }).index("by_clerk_id", ["clerkId"]), // Tao chi muc theo clerkId
 
   rooms: defineTable({
@@ -30,4 +31,23 @@ export default defineSchema({
     authorId: v.string(),
     roomId: v.id("rooms"), // Khoa ngoai: tham chieu den bang rooms
   }).index("by_room_id", ["roomId"]),
+
+  questions: defineTable({
+    title: v.string(),
+    description: v.string(),
+    level: v.union(v.literal("Easy"), v.literal("Medium"), v.literal("Hard")),
+    examples: v.array(
+      v.object({
+        input: v.string(),
+        output: v.string(),
+        explanation: v.optional(v.string()),
+      })
+    ),
+    starterCode: v.object({
+      javascript: v.string(),
+      python: v.string(),
+    }),
+    constraints: v.optional(v.array(v.string())),
+    authorId: v.string(), // ID của teacher tạo question (từ auth)
+  }).index("by_author_id", ["authorId"]),
 });
