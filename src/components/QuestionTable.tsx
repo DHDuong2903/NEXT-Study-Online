@@ -6,7 +6,7 @@ import { Id } from "convex/_generated/dataModel";
 import { CheckCircle, Cog, NotebookPen, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EditQuestionDialog from "./EditQuestionDialog";
-import { useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -18,6 +18,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { Pagination } from "./ui/pagination";
+
+const PaginationComponent = Pagination as unknown as ComponentType<{
+  total: number;
+  page: number;
+  onChange: (p: number) => void;
+}>;
 
 type Question = {
   _id: Id<"questions">;
@@ -29,6 +36,8 @@ interface QuestionTableProps {
   search: string;
   filterLevel: "Easy" | "Medium" | "Hard" | "All";
 }
+
+const PAGE_SIZE = 6;
 
 const QuestionTable = ({ search, filterLevel }: QuestionTableProps) => {
   const questions = (useQuery(api.questions.getQuestions) as Question[]) || [];
@@ -46,6 +55,16 @@ const QuestionTable = ({ search, filterLevel }: QuestionTableProps) => {
     const matchesLevel = filterLevel === "All" || q.level === filterLevel;
     return matchesSearch && matchesLevel;
   });
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterLevel, questions.length]);
+
+  const pagedQuestions = filteredQuestions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const [editing, setEditing] = useState<Question | null>(null);
   const [deleting, setDeleting] = useState<Question | null>(null);
@@ -78,11 +97,12 @@ const QuestionTable = ({ search, filterLevel }: QuestionTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredQuestions.map((q, index) => {
+          {pagedQuestions.map((q, index) => {
+            const globalIndex = (page - 1) * PAGE_SIZE + index;
             const isSolved = solvedIds.has(q._id);
             return (
               <TableRow key={q._id}>
-                <TableCell className="font-medium ">{index + 1}</TableCell>
+                <TableCell className="font-medium ">{globalIndex + 1}</TableCell>
                 <TableCell>
                   <span className="inline-flex items-center gap-2 align-middle">
                     <CheckCircle className={`w-4 h-4 ${isSolved ? "text-green-500" : "text-gray-300"}`} />
@@ -126,6 +146,38 @@ const QuestionTable = ({ search, filterLevel }: QuestionTableProps) => {
           })}
         </TableBody>
       </Table>
+
+      {/* Pagination UI */}
+      <div className="mt-4 relative">
+        {/* Reserve fixed space so pagination doesn't move with table rows */}
+        <div className="h-16" />
+
+        {/* Left: shadcn Pagination (kept) */}
+        <div className="absolute left-0 top-0">
+          <PaginationComponent total={totalPages} page={page} onChange={(p: number) => setPage(p)} />
+        </div>
+
+        {/* Right: Prev/Next stacked with page indicator underneath, fixed to right */}
+        <div className="absolute right-0 top-0 flex flex-col items-end">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setPage((v) => Math.max(1, v - 1))} disabled={page <= 1}>
+              Prev
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setPage((v) => Math.min(totalPages, v + 1))}
+              disabled={page >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
+
+          <div className="mt-1 text-xs text-muted-foreground mr-1">
+            Page {page} / {totalPages}
+          </div>
+        </div>
+      </div>
 
       <EditQuestionDialog question={editing} onClose={() => setEditing(null)} />
 
