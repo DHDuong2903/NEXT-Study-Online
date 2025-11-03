@@ -32,7 +32,7 @@ const colorMap: Record<string, { text: string; border: string; hoverText: string
 const ActionCard = ({ action, onClick }: { action: QuickActionType; onClick: () => void }) => {
   return (
     <Card
-      className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${colorMap[action.color].border}`}
+      className={`group relative overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-pointer ${colorMap[action.color].border}`}
       onClick={onClick}
     >
       <div className="absolute inset-0 opacity-100 group-hover:opacity-50 transition-opacity" />

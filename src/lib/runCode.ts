@@ -450,6 +450,7 @@ def __run_case(setup_code, func_name, param_names):
                 results.push({ passed: false, actual: actualVal, expected: t.expected });
               }
             }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (err) {
             // fallback if __result not JSON
             const txt = jsonStr;
