@@ -45,6 +45,7 @@ interface CodeEditorProps {
 }
 
 const CodeEditor = ({ initialQuestionId, isHorizontal = false, isSolvePage = false }: CodeEditorProps) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const codingQuestions = (useQuery(api.questions.getQuestions) as Question[]) || [];
 
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -79,7 +80,7 @@ const CodeEditor = ({ initialQuestionId, isHorizontal = false, isSolvePage = fal
     } else if (codingQuestions.length > 0 && !selectedQuestion) {
       setSelectedQuestion(codingQuestions[0]);
     }
-  }, [initialQuestionId, codingQuestions]);
+  }, [initialQuestionId, codingQuestions, selectedQuestion]);
 
   useEffect(() => {
     if (selectedQuestion) {
