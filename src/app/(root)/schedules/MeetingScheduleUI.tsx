@@ -2,7 +2,7 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "convex/_generated/api";
 import { toast } from "sonner";
 import {
   Dialog,
