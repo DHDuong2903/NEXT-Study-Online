@@ -1,3 +1,5 @@
+"use client";
+
 import AddNewQuestionButton from "./AddNewQuestionButton";
 import { Button } from "./ui/button";
 import {

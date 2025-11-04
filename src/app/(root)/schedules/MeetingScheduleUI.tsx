@@ -1,3 +1,5 @@
+"use client";
+
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
@@ -30,6 +32,7 @@ const MeetingScheduleUI = () => {
   const [open, setOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rooms = useQuery(api.rooms.getAllRooms) ?? [];
   const users = useQuery(api.users.getUsers) ?? [];
   const createRoom = useMutation(api.rooms.createRoom);
@@ -51,6 +54,7 @@ const MeetingScheduleUI = () => {
   // Reset dữ liệu mỗi khi mở form
   useEffect(() => {
     if (open) setFormData(initialFormData());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, user?.id]);
 
   const scheduleMeeting = async () => {

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCall, useCallStateHooks } from "@stream-io/video-react-sdk";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";

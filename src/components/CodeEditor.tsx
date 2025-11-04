@@ -1,3 +1,5 @@
+"use client";
+
 import type { TestResult } from "@/lib/runCode";
 import Image from "next/image";
 import Editor from "@monaco-editor/react";

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useMutation, useQuery } from "convex/react";
