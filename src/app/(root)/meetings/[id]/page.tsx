@@ -3,7 +3,7 @@
 import LoaderUI from "@/components/LoaderUI";
 import MeetingSetup from "@/components/MeetingSetup";
 import useGetCallById from "@/hooks/useGetCallById";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { StreamCall, StreamTheme } from "@stream-io/video-react-sdk";
@@ -15,6 +15,33 @@ const MeetingPage = () => {
   const { call, isCallLoading } = useGetCallById(id);
 
   const [isSetupComplete, setIsSetupComplete] = useState(false);
+
+  // Roi cuoc goi khi component unmounts
+  useEffect(() => {
+    return () => {
+      if (call && isSetupComplete) {
+        call.leave().catch((error) => {
+          console.log("Error leaving call:", error);
+        });
+      }
+    };
+  }, [call, isSetupComplete]);
+
+  // Canh bao truoc khi thoat cuoc goi
+  useEffect(() => {
+    if (!isSetupComplete) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isSetupComplete]);
 
   if (!isLoaded || isCallLoading) return <LoaderUI />;
 
