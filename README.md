@@ -1,6 +1,6 @@
-# Study Online
+# Stuline
 
-Study Online là nền tảng học trực tuyến hiện đại, phát triển với Next.js (frontend) và Convex (backend), sử dụng Clerk xác thực, Stream cho video call, TailwindCSS, Radix UI. Dự án hướng tới trải nghiệm học tập tối ưu, bảo mật, dễ mở rộng và quản trị.
+Stuline là nền tảng học trực tuyến hiện đại, phát triển với Next.js (frontend) và Convex (backend), sử dụng Clerk xác thực, Stream cho video call, TailwindCSS, Radix UI. Dự án hướng tới trải nghiệm học tập tối ưu, bảo mật, dễ mở rộng và quản trị.
 
 ## Kiến trúc dự án
 
